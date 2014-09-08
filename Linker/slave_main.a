@@ -1,0 +1,478 @@
+;/*****************************************************
+;This program was produced by the
+;CodeWizardAVR V2.05.3 Standard
+;Automatic Program Generator
+;© Copyright 1998-2011 Pavel Haiduc, HP InfoTech s.r.l.
+;http://www.hpinfotech.com
+;
+;Project : Slave Program Radar Base
+;Version : 1.5
+;Date    : 21/07/2014
+;Author  : deanzaka
+;Company : Solusi247
+;Comments:
+;
+;
+;Chip type               : ATmega8
+;Program type            : Application
+;AVR Core Clock frequency: 11,059200 MHz
+;Memory model            : Small
+;External RAM size       : 0
+;Data Stack size         : 256
+;*****************************************************/
+;
+;#include <mega8.h>
+;PCODE: $00000000 VOL: 0
+	#ifndef __SLEEP_DEFINED__
+;PCODE: $00000001 VOL: 0
+	#define __SLEEP_DEFINED__
+;PCODE: $00000002 VOL: 0
+	.EQU __se_bit=0x80
+;PCODE: $00000003 VOL: 0
+	.EQU __sm_mask=0x70
+;PCODE: $00000004 VOL: 0
+	.EQU __sm_powerdown=0x20
+;PCODE: $00000005 VOL: 0
+	.EQU __sm_powersave=0x30
+;PCODE: $00000006 VOL: 0
+	.EQU __sm_standby=0x60
+;PCODE: $00000007 VOL: 0
+	.EQU __sm_ext_standby=0x70
+;PCODE: $00000008 VOL: 0
+	.EQU __sm_adc_noise_red=0x10
+;PCODE: $00000009 VOL: 0
+	.SET power_ctrl_reg=mcucr
+;PCODE: $0000000A VOL: 0
+	#endif
+;PCODE: $0000000B VOL: 0
+;PCODE: $0000000C VOL: 0
+;#include <stdlib.h>
+;#include <stdio.h>
+;#include <string.h>
+;#include <delay.h>
+;
+;int     STEP    =   5000;
+;int   RES     =   1;
+;
+;unsigned char degchar[7];
+;unsigned char rpmchar[7];
+;int i = 0;
+;int c = 0;
+;
+;float rpm;
+;int deg;
+;int degint, rpmint;
+;int freq = 0;
+;
+;// External Interrupt 0 service routine
+;interrupt [EXT_INT0] void ext_int0_isr(void)
+; 0000 002D {
+
+	.CSEG
+;PCODE: $0000000D VOL: 0
+;PCODE: $0000000E VOL: 0
+; 0000 002E    // Place your code here
+; 0000 002F     freq++;
+;PCODE: $0000000F VOL: 0
+;PCODE: $00000010 VOL: 0
+;PCODE: $00000011 VOL: 0
+;PCODE: $00000012 VOL: 0
+; 0000 0030     if(PIND.4 == 0)
+;PCODE: $00000013 VOL: 0
+;PCODE: $00000014 VOL: 0
+;PCODE: $00000015 VOL: 0
+; 0000 0031     {
+; 0000 0032         if(PIND.3 == 0)
+;PCODE: $00000016 VOL: 0
+;PCODE: $00000017 VOL: 0
+;PCODE: $00000018 VOL: 0
+; 0000 0033         deg = deg + 1;
+;PCODE: $00000019 VOL: 0
+;PCODE: $0000001A VOL: 0
+;PCODE: $0000001B VOL: 0
+; 0000 0034     }
+;PCODE: $0000001C VOL: 0
+; 0000 0035     else if (PIND.4 == 1)
+;PCODE: $0000001D VOL: 0
+;PCODE: $0000001E VOL: 0
+;PCODE: $0000001F VOL: 0
+;PCODE: $00000020 VOL: 0
+;PCODE: $00000021 VOL: 0
+; 0000 0036     {
+; 0000 0037         if(PIND.3 == 0)
+;PCODE: $00000022 VOL: 0
+;PCODE: $00000023 VOL: 0
+;PCODE: $00000024 VOL: 0
+; 0000 0038         deg = deg - 1;
+;PCODE: $00000025 VOL: 0
+;PCODE: $00000026 VOL: 0
+;PCODE: $00000027 VOL: 0
+; 0000 0039     }
+;PCODE: $00000028 VOL: 0
+; 0000 003A }
+;PCODE: $00000029 VOL: 0
+;PCODE: $0000002A VOL: 0
+;PCODE: $0000002B VOL: 0
+;PCODE: $0000002C VOL: 0
+;PCODE: $0000002D VOL: 0
+;
+;// External Interrupt 1 service routine
+;interrupt [EXT_INT1] void ext_int1_isr(void)
+; 0000 003E {
+;PCODE: $0000002E VOL: 0
+;PCODE: $0000002F VOL: 0
+; 0000 003F     // Place your code here
+; 0000 0040     if(PIND.2 == 1) deg = 0;
+;PCODE: $00000030 VOL: 0
+;PCODE: $00000031 VOL: 0
+;PCODE: $00000032 VOL: 0
+;PCODE: $00000033 VOL: 0
+; 0000 0041     else if (PIND.2 == 0) deg = 5000;
+;PCODE: $00000034 VOL: 0
+;PCODE: $00000035 VOL: 0
+;PCODE: $00000036 VOL: 0
+;PCODE: $00000037 VOL: 0
+;PCODE: $00000038 VOL: 0
+;PCODE: $00000039 VOL: 0
+;PCODE: $0000003A VOL: 0
+; 0000 0042 }
+;PCODE: $0000003B VOL: 0
+;PCODE: $0000003C VOL: 0
+;PCODE: $0000003D VOL: 0
+;PCODE: $0000003E VOL: 0
+;PCODE: $0000003F VOL: 0
+;
+;// Timer1 overflow interrupt service routine
+;interrupt [TIM1_OVF] void timer1_ovf_isr(void)
+; 0000 0046 {
+;PCODE: $00000040 VOL: 0
+;PCODE: $00000041 VOL: 0
+; 0000 0047 // Reinitialize Timer1 value
+; 0000 0048 TCNT1H=0xD5D0 >> 8;
+;PCODE: $00000042 VOL: 0
+;PCODE: $00000043 VOL: 0
+; 0000 0049 TCNT1L=0xD5D0 & 0xff;
+;PCODE: $00000044 VOL: 0
+;PCODE: $00000045 VOL: 0
+; 0000 004A // Place your code here
+; 0000 004B rpm = (float) freq*60/STEP;
+;PCODE: $00000046 VOL: 0
+;PCODE: $00000047 VOL: 0
+;PCODE: $00000048 VOL: 0
+;PCODE: $00000049 VOL: 0
+;PCODE: $0000004A VOL: 0
+;PCODE: $0000004B VOL: 0
+;PCODE: $0000004C VOL: 0
+;PCODE: $0000004D VOL: 0
+;PCODE: $0000004E VOL: 0
+; 0000 004C freq=0;
+;PCODE: $0000004F VOL: 0
+;PCODE: $00000050 VOL: 0
+; 0000 004D }
+;PCODE: $00000051 VOL: 0
+;PCODE: $00000052 VOL: 0
+;PCODE: $00000053 VOL: 0
+;
+;// TWI functions
+;#include <twi.h>
+;
+;// TWI Slave receive buffer
+;#define TWI_RX_BUFFER_SIZE 32
+;unsigned char twi_rx_buffer[TWI_RX_BUFFER_SIZE];
+;
+;// TWI Slave transmit buffer
+;#define TWI_TX_BUFFER_SIZE 32
+;unsigned char twi_tx_buffer[TWI_TX_BUFFER_SIZE];
+;
+;// TWI Slave receive handler
+;// This handler is called everytime a byte
+;// is received by the TWI slave
+;bool twi_rx_handler(bool rx_complete)
+; 0000 005E {
+;PCODE: $00000054 VOL: 0
+;PCODE: $00000055 VOL: 0
+; 0000 005F if (twi_result==TWI_RES_OK)
+;PCODE: $00000056 VOL: 0
+;	rx_complete -> Y+0
+;PCODE: $00000057 VOL: 0
+;PCODE: $00000058 VOL: 0
+;PCODE: $00000059 VOL: 0
+; 0000 0060    {
+; 0000 0061    // A data byte was received without error
+; 0000 0062    // and it was stored at twi_rx_buffer[twi_rx_index]
+; 0000 0063    // Place your code here to process the received byte
+; 0000 0064    // Note: processing must be VERY FAST, otherwise
+; 0000 0065    // it is better to process the received data when
+; 0000 0066    // all communication with the master has finished
+; 0000 0067    }
+; 0000 0068 else
+;PCODE: $0000005A VOL: 0
+;PCODE: $0000005B VOL: 0
+; 0000 0069    {
+; 0000 006A    // Receive error
+; 0000 006B    // Place your code here to process the error
+; 0000 006C    return false; // Stop further reception
+;PCODE: $0000005C VOL: 0
+;PCODE: $0000005D VOL: 0
+;PCODE: $0000005E VOL: 0
+; 0000 006D    }
+;PCODE: $0000005F VOL: 0
+; 0000 006E 
+; 0000 006F // The TWI master has finished transmitting data?
+; 0000 0070 if (rx_complete) return false; // Yes, no more bytes to receive
+;PCODE: $00000060 VOL: 0
+;PCODE: $00000061 VOL: 0
+;PCODE: $00000062 VOL: 0
+;PCODE: $00000063 VOL: 0
+;PCODE: $00000064 VOL: 0
+;PCODE: $00000065 VOL: 0
+; 0000 0071 
+; 0000 0072 // Signal to the TWI master that the TWI slave
+; 0000 0073 // is ready to accept more data, as long as
+; 0000 0074 // there is enough space in the receive buffer
+; 0000 0075 return (twi_rx_index<sizeof(twi_rx_buffer));
+;PCODE: $00000066 VOL: 0
+;PCODE: $00000067 VOL: 0
+;PCODE: $00000068 VOL: 0
+;PCODE: $00000069 VOL: 0
+;PCODE: $0000006A VOL: 0
+;PCODE: $0000006B VOL: 0
+; 0000 0076 }
+;PCODE: $0000006C VOL: 0
+;
+;// TWI Slave transmission handler
+;// This handler is called for the first time when the
+;// transmission from the TWI slave to the master
+;// is about to begin, returning the number of bytes
+;// that need to be transmitted
+;// The second time the handler is called when the
+;// transmission has finished
+;// In this case it must return 0
+;unsigned char twi_tx_handler(bool tx_complete)
+; 0000 0081 {
+;PCODE: $0000006D VOL: 0
+;PCODE: $0000006E VOL: 0
+; 0000 0082 if (tx_complete==false)
+;PCODE: $0000006F VOL: 0
+;	tx_complete -> Y+0
+;PCODE: $00000070 VOL: 0
+;PCODE: $00000071 VOL: 0
+;PCODE: $00000072 VOL: 0
+; 0000 0083 {
+; 0000 0084 	// Transmission from slave to master is about to start
+; 0000 0085     //twi_tx_buffer[0] = degsend[c];
+; 0000 0086     //if(c < 6) c++;
+; 0000 0087     //else c = 0;
+; 0000 0088 
+; 0000 0089 
+; 0000 008A     if(twi_rx_buffer[0] == 'D')
+;PCODE: $00000073 VOL: 0
+;PCODE: $00000074 VOL: 0
+;PCODE: $00000075 VOL: 0
+; 0000 008B     {
+; 0000 008C         //degint = (int) deg;
+; 0000 008D         itoa(deg, degchar);
+;PCODE: $00000076 VOL: 0
+;PCODE: $00000077 VOL: 0
+;PCODE: $00000078 VOL: 0
+; 0000 008E         strcpy(twi_tx_buffer, degchar);
+;PCODE: $00000079 VOL: 0
+;PCODE: $0000007A VOL: 0
+;PCODE: $0000007B VOL: 0
+;PCODE: $0000007C VOL: 0
+; 0000 008F     }
+; 0000 0090     else if(twi_rx_buffer[0] == 'R')
+;PCODE: $0000007D VOL: 0
+;PCODE: $0000007E VOL: 0
+;PCODE: $0000007F VOL: 0
+;PCODE: $00000080 VOL: 0
+;PCODE: $00000081 VOL: 0
+; 0000 0091     {
+; 0000 0092         //rpmint = (int) rpm;
+; 0000 0093         ftoa(rpm, 3, rpmchar);
+;PCODE: $00000082 VOL: 0
+;PCODE: $00000083 VOL: 0
+;PCODE: $00000084 VOL: 0
+;PCODE: $00000085 VOL: 0
+;PCODE: $00000086 VOL: 0
+;PCODE: $00000087 VOL: 0
+; 0000 0094         strcpy(twi_tx_buffer, rpmchar);
+;PCODE: $00000088 VOL: 0
+;PCODE: $00000089 VOL: 0
+;PCODE: $0000008A VOL: 0
+;PCODE: $0000008B VOL: 0
+; 0000 0095     }
+; 0000 0096     else if(twi_rx_buffer[0] == 'N')
+;PCODE: $0000008C VOL: 0
+;PCODE: $0000008D VOL: 0
+;PCODE: $0000008E VOL: 0
+;PCODE: $0000008F VOL: 0
+;PCODE: $00000090 VOL: 0
+; 0000 0097     {
+; 0000 0098         //force reset with watchdogs timer
+; 0000 0099 		#asm("cli")
+;PCODE: $00000091 VOL: 0
+	cli
+;PCODE: $00000092 VOL: 0
+; 0000 009A 		WDTCR=0x18;
+;PCODE: $00000093 VOL: 0
+;PCODE: $00000094 VOL: 0
+; 0000 009B 		WDTCR=0x08;
+;PCODE: $00000095 VOL: 0
+;PCODE: $00000096 VOL: 0
+; 0000 009C 		while(1);
+;PCODE: $00000097 VOL: 0
+;PCODE: $00000098 VOL: 0
+;PCODE: $00000099 VOL: 0
+; 0000 009D     }
+; 0000 009E 
+; 0000 009F 
+; 0000 00A0     //strcpy(twi_tx_buffer, " COBA ");
+; 0000 00A1     return strlen(twi_tx_buffer);
+;PCODE: $0000009A VOL: 0
+;PCODE: $0000009B VOL: 0
+;PCODE: $0000009C VOL: 0
+;PCODE: $0000009D VOL: 0
+;PCODE: $0000009E VOL: 0
+;PCODE: $0000009F VOL: 0
+;PCODE: $000000A0 VOL: 0
+; 0000 00A2 }
+; 0000 00A3 
+; 0000 00A4 
+; 0000 00A5 // Transmission from slave to master has finished
+; 0000 00A6 // Place code here to eventually process data from
+; 0000 00A7 // the twi_rx_buffer, if it wasn't yet processed
+; 0000 00A8 // in the twi_rx_handler
+; 0000 00A9 
+; 0000 00AA // No more bytes to send in this transaction
+; 0000 00AB return 0;
+;PCODE: $000000A1 VOL: 0
+;PCODE: $000000A2 VOL: 0
+;PCODE: $000000A3 VOL: 0
+;PCODE: $000000A4 VOL: 0
+; 0000 00AC }
+;PCODE: $000000A5 VOL: 0
+;
+;// Declare your global variables here
+;
+;void main(void)
+; 0000 00B1 {
+;PCODE: $000000A6 VOL: 0
+; 0000 00B2 // Declare your local variables here
+; 0000 00B3 
+; 0000 00B4 // Timer/Counter 1 initialization
+; 0000 00B5 // Clock source: System Clock
+; 0000 00B6 // Clock value: 10,800 kHz
+; 0000 00B7 // Mode: Normal top=0xFFFF
+; 0000 00B8 // OC1A output: Discon.
+; 0000 00B9 // OC1B output: Discon.
+; 0000 00BA // Noise Canceler: Off
+; 0000 00BB // Input Capture on Falling Edge
+; 0000 00BC // Timer1 Overflow Interrupt: On
+; 0000 00BD // Input Capture Interrupt: Off
+; 0000 00BE // Compare A Match Interrupt: Off
+; 0000 00BF // Compare B Match Interrupt: Off
+; 0000 00C0 TCCR1A=0x00;
+;PCODE: $000000A7 VOL: 0
+;PCODE: $000000A8 VOL: 0
+; 0000 00C1 TCCR1B=0x05;
+;PCODE: $000000A9 VOL: 0
+;PCODE: $000000AA VOL: 0
+; 0000 00C2 TCNT1H=0xD5;
+;PCODE: $000000AB VOL: 0
+;PCODE: $000000AC VOL: 0
+; 0000 00C3 TCNT1L=0xD0;
+;PCODE: $000000AD VOL: 0
+;PCODE: $000000AE VOL: 0
+; 0000 00C4 ICR1H=0x00;
+;PCODE: $000000AF VOL: 0
+;PCODE: $000000B0 VOL: 0
+; 0000 00C5 ICR1L=0x00;
+;PCODE: $000000B1 VOL: 0
+;PCODE: $000000B2 VOL: 0
+; 0000 00C6 OCR1AH=0x00;
+;PCODE: $000000B3 VOL: 0
+;PCODE: $000000B4 VOL: 0
+; 0000 00C7 OCR1AL=0x00;
+;PCODE: $000000B5 VOL: 0
+;PCODE: $000000B6 VOL: 0
+; 0000 00C8 OCR1BH=0x00;
+;PCODE: $000000B7 VOL: 0
+;PCODE: $000000B8 VOL: 0
+; 0000 00C9 OCR1BL=0x00;
+;PCODE: $000000B9 VOL: 0
+;PCODE: $000000BA VOL: 0
+; 0000 00CA 
+; 0000 00CB // External Interrupt(s) initialization
+; 0000 00CC // INT0: On
+; 0000 00CD // INT0 Mode: Rising Edge
+; 0000 00CE // INT1: On
+; 0000 00CF // INT1 Mode: Rising Edge
+; 0000 00D0 GICR|=0xC0;
+;PCODE: $000000BB VOL: 0
+;PCODE: $000000BC VOL: 0
+;PCODE: $000000BD VOL: 0
+; 0000 00D1 MCUCR=0x0F;
+;PCODE: $000000BE VOL: 0
+;PCODE: $000000BF VOL: 0
+; 0000 00D2 GIFR=0xC0;
+;PCODE: $000000C0 VOL: 0
+;PCODE: $000000C1 VOL: 0
+; 0000 00D3 
+; 0000 00D4 // Timer(s)/Counter(s) Interrupt(s) initialization
+; 0000 00D5 TIMSK=0x04;
+;PCODE: $000000C2 VOL: 0
+;PCODE: $000000C3 VOL: 0
+; 0000 00D6 
+; 0000 00D7 // Analog Comparator initialization
+; 0000 00D8 // Analog Comparator: Off
+; 0000 00D9 // Analog Comparator Input Capture by Timer/Counter 1: Off
+; 0000 00DA ACSR=0x80;
+;PCODE: $000000C4 VOL: 0
+;PCODE: $000000C5 VOL: 0
+; 0000 00DB SFIOR=0x00;
+;PCODE: $000000C6 VOL: 0
+;PCODE: $000000C7 VOL: 0
+; 0000 00DC 
+; 0000 00DD // SPI initialization
+; 0000 00DE // SPI disabled
+; 0000 00DF SPCR=0x00;
+;PCODE: $000000C8 VOL: 0
+;PCODE: $000000C9 VOL: 0
+; 0000 00E0 
+; 0000 00E1 // TWI initialization
+; 0000 00E2 // Mode: TWI Slave
+; 0000 00E3 // Match Any Slave Address: On
+; 0000 00E4 twi_slave_init(true,0x00,twi_rx_buffer,1,twi_tx_buffer,twi_rx_handler,twi_tx_handler);
+;PCODE: $000000CA VOL: 0
+;PCODE: $000000CB VOL: 0
+;PCODE: $000000CC VOL: 0
+;PCODE: $000000CD VOL: 0
+;PCODE: $000000CE VOL: 0
+;PCODE: $000000CF VOL: 0
+;PCODE: $000000D0 VOL: 0
+;PCODE: $000000D1 VOL: 0
+;PCODE: $000000D2 VOL: 0
+;PCODE: $000000D3 VOL: 0
+;PCODE: $000000D4 VOL: 0
+;PCODE: $000000D5 VOL: 0
+;PCODE: $000000D6 VOL: 0
+;PCODE: $000000D7 VOL: 0
+; 0000 00E5 
+; 0000 00E6 // Global enable interrupts
+; 0000 00E7 #asm("sei")
+;PCODE: $000000D8 VOL: 0
+	sei
+;PCODE: $000000D9 VOL: 0
+; 0000 00E8 
+; 0000 00E9 while (1)
+;PCODE: $000000DA VOL: 0
+; 0000 00EA {
+; 0000 00EB     // Place your code here
+; 0000 00EC }
+;PCODE: $000000DB VOL: 0
+;PCODE: $000000DC VOL: 0
+; 0000 00ED }
+;PCODE: $000000DD VOL: 0
+;PCODE: $000000DE VOL: 0
+;PCODE: $000000DF VOL: 0
